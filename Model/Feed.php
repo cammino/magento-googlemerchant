@@ -60,13 +60,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 			if ((strval($category->getGooglemerchantCategory()) != "") && (intval($category->getLevel()) > $categoryLevel)) {
 				$categoryLevel = intval($category->getLevel());
-				$googleCategory = htmlentities($category->getGooglemerchantCategory());
-				$storeCategory = htmlentities($category->getName());
+				$googleCategory = htmlentities($category->getGooglemerchantCategory(), ENT_COMPAT, 'UTF-8');
+				$storeCategory = htmlentities($category->getName(), ENT_COMPAT, 'UTF-8');
 			}
 		}
 
-		$xml  = "<g:google_product_category>". $googleCategory ."</g:google_product_category>\n";
-		$xml .= "<g:product_type>". $storeCategory ."</g:product_type>\n"; 
+		$xml  = "<g:google_product_category><![CDATA[". $googleCategory ."]]></g:google_product_category>\n";
+		$xml .= "<g:product_type><![CDATA[". $storeCategory ."]]></g:product_type>\n"; 
 
 		return $xml;
 	}
