@@ -1,0 +1,8 @@
+<config>
+    <modules>
+        <Cammino_Googlemerchant>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Cammino_Googlemerchant>
+    </modules>
+</config>
