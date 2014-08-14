@@ -65,8 +65,15 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			}
 		}
 
-		$xml  = "<g:google_product_category><![CDATA[". $googleCategory ."]]></g:google_product_category>\n";
-		$xml .= "<g:product_type><![CDATA[". $storeCategory ."]]></g:product_type>\n"; 
+		$xml  = "";
+
+		if ($googleCategory != "") {
+			$xml .= "<g:google_product_category><![CDATA[". $googleCategory ."]]></g:google_product_category>\n";
+		}
+
+		if ($storeCategory != "") {
+			$xml .= "<g:product_type><![CDATA[". $storeCategory ."]]></g:product_type>\n"; 
+		}
 
 		return $xml;
 	}
