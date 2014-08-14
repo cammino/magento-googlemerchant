@@ -1,0 +1,4 @@
+magento-googlemerchant
+======================
+
+Google Merchant
