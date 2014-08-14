@@ -43,7 +43,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$xml .= $this->getPriceNode($product);
 		$xml .= $this->getAvailabilityNode($product);
 		$xml .= "<g:image_link><![CDATA[". (string)Mage::helper('catalog/image')->init($product, 'image')->resize(500,500) ."]]></g:image_link>\n";
-	//	$xml .= "<g:brand></g:brand>\n";
+		$xml .= $this->getBrandNode($product);
+		$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
 		$xml .= $this->getCategoriesNode($product);
 		$xml .= "</item>\n";
 		return $xml;
@@ -97,6 +98,17 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	public function getAvailabilityNode($product) {
 		$stock = (Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId())->getQty() > 0) ? true : false;
 		return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
+	}
+
+	public function getBrandNode($product) {
+		$manufacturer = strval($product->getManufacturer());
+		$xml = "";
+
+		if ($manufacturer != "") {
+			return "<g:brand>". $manufacturer ."</g:brand>\n";
+		} else {
+			return "";
+		}
 	}
 
 	public function getProducts() {
