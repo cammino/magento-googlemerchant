@@ -18,7 +18,7 @@ $setup->addAttribute('catalog_category', 'googlemerchant_category', array(
 
 $table = $installer->getConnection()
 	->newTable($installer->getTable('googlemerchant/category'))
-	->addColumn('ticket_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
+	->addColumn('category_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
 		'identity'		=> true,
 		'unsigned'		=> true,
 		'nullable'		=> false,
@@ -29,6 +29,7 @@ $table = $installer->getConnection()
 	), 'Title');
 
 $installer->getConnection()->createTable($table);
+$installer->run("ALTER TABLE `". $installer->getTable('googlemerchant/category') ."` CHANGE `category_id` `category_id` INT(10) AUTO_INCREMENT");
 $installer->endSetup();
 
 $category = Mage::getModel('googlemerchant/category');
