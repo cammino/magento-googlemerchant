@@ -80,7 +80,18 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getPriceNode($product) {
-		$xml .= "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
+
+		$xml = "";
+
+		if ($product->getTypeId() == "simple") {
+			return $this->getSimplePriceNode($product);
+		} else if ($product->getTypeId() == "grouped") {
+			return $this->getGroupedPriceNode($product);
+		}
+	}
+
+	public function getSimplePriceNode($product) {
+		$xml = "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
 
 		if ($product->getSpecialPrice() > 0) {			
 			$xml .= "<g:sale_price>". number_format($product->getSpecialPrice(), 2, '.', '') ."</g:sale_price>\n";
@@ -93,6 +104,19 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		}
 
 		return $xml;
+	}
+
+	public function getGroupedPriceNode($product) {
+		$associated = $product->getTypeInstance(true)->getAssociatedProducts($product);
+		$minimal = 0;
+
+		foreach($associated as $item) {
+			if ($item->getPrice() > $minimal) {
+				$minimal = $item->getPrice();
+			}
+		}
+
+		return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
 	}
 
 	public function getAvailabilityNode($product) {
