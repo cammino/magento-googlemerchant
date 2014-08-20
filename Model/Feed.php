@@ -107,7 +107,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getGroupedPriceNode($product) {
-		$associated = $product->getTypeInstance(true)->getAssociatedProducts($product);
+		$associated = $this->getAssociatedProducts($product);
 		$minimal = 0;
 
 		foreach($associated as $item) {
@@ -120,7 +120,28 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getAvailabilityNode($product) {
+
+		if ($product->getTypeId() == "simple") {
+			return $this->getSimpleAvailabilityNode($product);
+		} else if ($product->getTypeId() == "grouped") {
+			return $this->getGroupedAvailabilityNode($product);
+		}		
+	}
+
+	public function getSimpleAvailabilityNode($product) {
 		$stock = (Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId())->getQty() > 0) ? true : false;
+		return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
+	}
+
+	public function getGroupedAvailabilityNode($product) {
+		$associated = $this->getAssociatedProducts($product);
+		$stock = 0;
+
+		foreach($associated as $item) {
+			$itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getId())->getQty();
+			$stock += $itemStock;
+		}
+
 		return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
 	}
 
@@ -141,9 +162,18 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$products->addAttributeToSelect('*')
 			->addAttributeToFilter('status', 1)
 			->addAttributeToFilter('visibility', array('neq' => '1'))
+			->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped')))
 			->addAttributeToSort('created_at', 'desc');
 
 		return $products;
+	}
+
+	public function getAssociatedProducts($product) {
+		$collection = $product->getTypeInstance(true)->getAssociatedProductCollection($product)
+			->addAttributeToSelect('*')
+			->addAttributeToFilter('status', 1);
+
+		return $collection;
 	}
 
 }
