@@ -108,12 +108,19 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 	public function getGroupedPriceNode($product) {
 		$associated = $this->getAssociatedProducts($product);
+		$prices = array();
 		$minimal = 0;
 
 		foreach($associated as $item) {
-			if ($item->getPrice() > $minimal) {
-				$minimal = $item->getPrice();
+			if ($item->getPrice() > 0) {
+				array_push($prices, $item->getPrice());
 			}
+		}
+
+		rsort($prices, SORT_NUMERIC);
+
+		if (count($prices) > 0) {
+			$minimal = end($prices);	
 		}
 
 		return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
