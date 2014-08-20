@@ -136,8 +136,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getSimpleAvailabilityNode($product) {
-		$stock = (Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId())->getQty() > 0) ? true : false;
-		return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
+		$stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+		return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) ? 'in stock' : 'out of stock') ."</g:availability>\n";
 	}
 
 	public function getGroupedAvailabilityNode($product) {
@@ -145,8 +145,11 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$stock = 0;
 
 		foreach($associated as $item) {
-			$itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getId())->getQty();
-			$stock += $itemStock;
+			$itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getId());
+
+			if ($itemStock->getIsInStock() == "1") {
+				$stock += $itemStock->getQty();
+			}
 		}
 
 		return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
