@@ -42,7 +42,6 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$xml .= "<g:condition>new</g:condition>\n";
 		$xml .= $this->getPriceNode($product);
 		$xml .= $this->getAvailabilityNode($product);
-		// $xml .= "<g:image_link><![CDATA[". (string)Mage::helper('catalog/image')->init($product, 'image') ."]]></g:image_link>\n";
 		$xml .= "<g:image_link><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl( $product->getImage() ) ."]]></g:image_link>\n";
 
 		
