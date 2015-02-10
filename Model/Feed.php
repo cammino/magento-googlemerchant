@@ -36,13 +36,16 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$xml  = "<item>\n";
 		$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
 		$xml .= "<link><![CDATA[". $product->getProductUrl() ."]]></link>\n";
-		$xml .= "<description><![CDATA[". substr($product->getDescription(), 0, 5000) ."]]></description>\n";
+		$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
 		$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 		$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
 		$xml .= "<g:condition>new</g:condition>\n";
 		$xml .= $this->getPriceNode($product);
 		$xml .= $this->getAvailabilityNode($product);
-		$xml .= "<g:image_link><![CDATA[". (string)Mage::helper('catalog/image')->init($product, 'image')->resize(500,500) ."]]></g:image_link>\n";
+		// $xml .= "<g:image_link><![CDATA[". (string)Mage::helper('catalog/image')->init($product, 'image') ."]]></g:image_link>\n";
+		$xml .= "<g:image_link><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl( $product->getImage() ) ."]]></g:image_link>\n";
+
+		
 		$xml .= $this->getBrandNode($product);
 		$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
 		$xml .= $this->getCategoriesNode($product);
