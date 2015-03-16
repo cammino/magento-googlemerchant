@@ -33,52 +33,60 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getProductXml($product) {
-		$xml  = "<item>\n";
-		$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
-		$xml .= "<link><![CDATA[". $product->getProductUrl() ."]]></link>\n";
-		$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
-		$xml .= "<g:id>". $product->getId() ."</g:id>\n";
-		$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
-		$xml .= "<g:condition>new</g:condition>\n";
-		$xml .= $this->getPriceNode($product);
-		$xml .= $this->getAvailabilityNode($product);
-		$xml .= "<g:image_link><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl( $product->getImage() ) ."]]></g:image_link>\n";
-
+		$categories = $this->getGoogleCategory($product);
 		
-		$xml .= $this->getBrandNode($product);
-		$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
-		$xml .= $this->getCategoriesNode($product);
-		$xml .= "</item>\n";
+		if (is_array($categories)) {
+			$xml  = "<item>\n";
+			$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
+			$xml .= "<link><![CDATA[". $product->getProductUrl() ."]]></link>\n";
+			$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
+			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
+			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
+			$xml .= "<g:condition>new</g:condition>\n";
+			$xml .= $this->getPriceNode($product);
+			$xml .= $this->getAvailabilityNode($product);
+			$xml .= "<g:image_link><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl( $product->getImage() ) ."]]></g:image_link>\n";
+
+			
+			$xml .= $this->getBrandNode($product);
+			$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
+			$xml .= $this->getCategoriesNode($categories);
+			$xml .= "</item>\n";
+			return $xml;
+		}
+	}
+
+	public function getCategoriesNode($categories) {
+		$xml  = "";
+		if ($categories['googleCategory'] != "") {
+			$xml .= "<g:google_product_category><![CDATA[". $categories['googleCategory'] ."]]></g:google_product_category>\n";
+		}
+
+		if ($categories['storeCategory'] != "") {
+			$xml .= "<g:product_type><![CDATA[". $categories['storeCategory'] ."]]></g:product_type>\n"; 
+		}
+
 		return $xml;
 	}
 
-	public function getCategoriesNode($product) {
+	public function getGoogleCategory($product) {
 		$ids = $product->getCategoryIds();
 		$categoryLevel = -1;
-		$googleCategory = "";
-		$storeCategory = "";
-
+		$categories = "";
+		
 		foreach($ids as $id) {
 			$category = Mage::getModel('catalog/category')->load($id);
 
 			if ((strval($category->getGooglemerchantCategory()) != "") && (intval($category->getLevel()) > $categoryLevel)) {
 				$categoryLevel = intval($category->getLevel());
-				$googleCategory = htmlentities($category->getGooglemerchantCategory(), ENT_COMPAT, 'UTF-8');
-				$storeCategory = htmlentities($category->getName(), ENT_COMPAT, 'UTF-8');
+				$categories = array(
+					"googleCategory" => htmlentities($category->getGooglemerchantCategory(), ENT_COMPAT, 'UTF-8'),
+					"storeCategory"	 => htmlentities($category->getName(), ENT_COMPAT, 'UTF-8')
+				);
 			}
 		}
 
-		$xml  = "";
-
-		if ($googleCategory != "") {
-			$xml .= "<g:google_product_category><![CDATA[". $googleCategory ."]]></g:google_product_category>\n";
-		}
-
-		if ($storeCategory != "") {
-			$xml .= "<g:product_type><![CDATA[". $storeCategory ."]]></g:product_type>\n"; 
-		}
-
-		return $xml;
+		return (empty($categories['googleCategory'])) ? false : $categories;
 	}
 
 	public function getPriceNode($product) {
