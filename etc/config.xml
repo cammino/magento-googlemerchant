@@ -19,6 +19,11 @@
                 </entities>
             </googlemerchant_mysql4>
         </models>
+        <blocks>
+            <googlemerchant>
+                <class>Cammino_Googlemerchant_Block</class>
+            </googlemerchant>
+        </blocks>
         <resources>
             <googlemerchant_setup>
                 <setup>
@@ -73,6 +78,13 @@
                 </args>
             </googlemerchant>
         </routers>
+        <layout>
+            <updates>
+                <googlemerchant>
+                    <file>googlemerchant.xml</file>
+                </googlemerchant>
+            </updates>
+        </layout>
     </frontend>
     <default>
         <catalog>
