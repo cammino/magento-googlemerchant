@@ -50,19 +50,22 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			
 			$xml .= $this->getBrandNode($product);
 			$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
-			$xml .= $this->getCategoriesNode($categories);
+			$xml .= $this->getCategoriesNode($categories, $product);
+			$xml .= $this->getCustomLabelNode($product);
 			$xml .= "</item>\n";
 			return $xml;
 		}
 	}
 
-	public function getCategoriesNode($categories) {
+	public function getCategoriesNode($categories, $product) {
 		$xml  = "";
 		if ($categories['googleCategory'] != "") {
 			$xml .= "<g:google_product_category><![CDATA[". $categories['googleCategory'] ."]]></g:google_product_category>\n";
 		}
-
-		if ($categories['storeCategory'] != "") {
+		
+		if ($product->getGooglemerchantProductType() != "") {
+			$xml .= "<g:product_type><![CDATA[". $product->getGooglemerchantProductType() ."]]></g:product_type>\n"; 
+		}else if ($categories['storeCategory'] != "") {
 			$xml .= "<g:product_type><![CDATA[". $categories['storeCategory'] ."]]></g:product_type>\n"; 
 		}
 
@@ -174,6 +177,33 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		} else {
 			return "";
 		}
+	}
+
+	public function getCustomLabelNode($product) {
+
+		$customlabel = "";
+
+		if ($product->getGooglemerchantCustomlabel_0() != "") {
+			$customlabel .= "<g:custom_label_0>". $product->getGooglemerchantCustomlabel_0() ."</g:custom_label_0>";
+		}
+
+		if ($product->getGooglemerchantCustomlabel_1() != "") {
+			$customlabel .= "<g:custom_label_1>". $product->getGooglemerchantCustomlabel_1() ."</g:custom_label_1>";
+		}
+
+		if ($product->getGooglemerchantCustomlabel_2() != "") {
+			$customlabel .= "<g:custom_label_2>". $product->getGooglemerchantCustomlabel_2(). "</g:custom_label_2>";
+		}
+
+		if ($product->getGooglemerchantCustomlabel_3() != "") {
+			$customlabel .= "<g:custom_label_3>". $product->getGooglemerchantCustomlabel_3(). "</g:custom_label_3>";
+		}
+
+		if ($product->getGooglemerchantCustomlabel_4() != "") {
+			$customlabel .= "<g:custom_label_4>". $product->getGooglemerchantCustomlabel_4(). "</g:custom_label_4>";
+		}
+
+		return $customlabel;
 	}
 
 	public function getProducts() {
