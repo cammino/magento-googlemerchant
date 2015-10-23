@@ -44,7 +44,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
 
             $price = $product->getPrice();
             
-            if ($product->getSpecialPrice() > 0) {
+            if ($product->getSpecialPrice() > 0 && ($now >= $product->getSpecialFromDate() && ( ($product->getSpecialToDate() != "") || $now <= $product->getSpecialToDate()))) {
                 $price = $product->getSpecialPrice();
             }
 
