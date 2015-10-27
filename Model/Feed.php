@@ -111,7 +111,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 			if(($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
 				$specialFromDate = date('c', strtotime($product->getSpecialFromDate()));
-				$specialToDate = date('c', strtotime($product->getSpecialToDate()));
+				$dateOffset = (23*60*60)+(59*60)+59; // for add 23:59 to end date
+				$specialToDate = date('c', (strtotime($product->getSpecialToDate())+$dateOffset));
 				$xml .= "<g:sale_price_effective_date>". $specialFromDate .'/'. $specialToDate ."</g:sale_price_effective_date>\n";
 			}
 		}

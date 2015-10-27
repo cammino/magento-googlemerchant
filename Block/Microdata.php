@@ -17,6 +17,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $result[] = "<div itemscope itemtype=\"http://schema.org/Product\">";
                 $result[] = sprintf("<meta itemprop=\"sku\" content=\"%s\">", $this->escapeHtml($product->getId()));
                 $result[] = sprintf("<meta itemprop=\"name\" content=\"%s\">", $this->escapeHtml($product->getName()));
+                $result[] = "<div itemprop=\"offers\" itemscope itemtype=\"http://schema.org/Offer\">";
                 $result[] = sprintf("<meta itemprop=\"price\" content=\"%s\">", number_format($productPrice, 2, '.', ''));
                 $result[] = sprintf("<meta itemprop=\"priceCurrency\" content=\"%s\">", $this->escapeHtml($currency));
 
@@ -25,7 +26,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 } else {
                     $result[] = "<meta itemprop=\"availability\" content=\"http://schema.org/OutOfStock\">";
                 }
-
+                $result[] = "</div>";
                 $result[] = "</div>";
             }
 
