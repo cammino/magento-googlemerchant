@@ -13,10 +13,26 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $currency = trim(Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol());
                 $productPrice = $this->getProductPrice($product);
                 $availability = $this->getProductAvailability($product);
+                $RatingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
 
                 $result[] = "<div itemscope itemtype=\"http://schema.org/Product\">";
                 $result[] = sprintf("<meta itemprop=\"sku\" content=\"%s\">", $this->escapeHtml($product->getId()));
                 $result[] = sprintf("<meta itemprop=\"name\" content=\"%s\">", $this->escapeHtml($product->getName()));
+
+                /* Product Rating */
+                if($RatingOb->getSum() && $RatingOb->getCount()){
+                    $ratingSum = $RatingOb->getSum() / 20;      // Cada estrela equivale a 20
+                    $ratingCount = $RatingOb->getCount() / 2;   // 2 avaliacoes por pessoa
+                    $rating = ($ratingSum / $ratingCount) / 2;  // Media das 2 avaliacoes
+                    
+                    $result[] = "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\">";
+                    $result[] = "<meta itemprop=\"bestRating\" content=\"5\">"; 
+                    $result[] = "<meta itemprop=\"worstRating\" content=\"1\">";
+                    $result[] = sprintf("<meta itemprop=\"ratingValue\" content=\"%s\">", $rating);
+                    $result[] = sprintf("<meta itemprop=\"ratingCount\" content=\"%s\">", $ratingCount);
+                    $result[] = "</div>";
+                }
+
                 $result[] = "<div itemprop=\"offers\" itemscope itemtype=\"http://schema.org/Offer\">";
                 $result[] = sprintf("<meta itemprop=\"price\" content=\"%s\">", number_format($productPrice, 2, '.', ''));
                 $result[] = sprintf("<meta itemprop=\"priceCurrency\" content=\"%s\">", $this->escapeHtml($currency));
