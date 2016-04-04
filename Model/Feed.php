@@ -1,6 +1,19 @@
 <?php
 class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 {
+	private $_couponCode = false;
+	private $_couponPrefix = "";
+
+	public function  __construct() {
+
+		$this->_couponCode = Mage::getStoreConfig('catalog/googlemerchant/couponcode');
+
+		if($this->_couponCode != "" && $this->_couponCode != false){
+			$this->_couponPrefix = "?coupon_code=".$this->_couponCode;
+		}else{
+			$this->_couponCode = false;
+		}
+	}
 
 	public function getXml() {
 		$products = $this->getProducts();
@@ -34,11 +47,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 	public function getProductXml($product) {
 		$categories = $this->getGoogleCategory($product);
-		
+
+		$product = $this->getDiscount($product);
+
 		if (is_array($categories)) {
 			$xml  = "<item>\n";
 			$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
-			$xml .= "<link><![CDATA[". $product->getProductUrl() ."]]></link>\n";
+			$xml .= "<link><![CDATA[". $product->getProductUrl() . $this->_couponPrefix ."]]></link>\n";
 			$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
 			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
@@ -104,16 +119,21 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	}
 
 	public function getSimplePriceNode($product) {
+
 		$xml = "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
 
-		if ($product->getSpecialPrice() > 0) {			
-			$xml .= "<g:sale_price>". number_format($product->getSpecialPrice(), 2, '.', '') ."</g:sale_price>\n";
+		if ($product->getFinalPrice() < $product->getPrice()) {
+			$xml .= "<g:sale_price>". number_format($product->getFinalPrice(), 2, '.', '') ."</g:sale_price>\n";
 
-			if(($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
+			if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
 				$specialFromDate = date('c', strtotime($product->getSpecialFromDate()));
 				$dateOffset = (23*60*60)+(59*60)+59; // for add 23:59 to end date
 				$specialToDate = date('c', (strtotime($product->getSpecialToDate())+$dateOffset));
-				$xml .= "<g:sale_price_effective_date>". $specialFromDate .'/'. $specialToDate ."</g:sale_price_effective_date>\n";
+				$currentDate = new DateTime();
+
+				if ((strtotime($product->getSpecialToDate())+$dateOffset) >= $currentDate->getTimestamp()) {
+					$xml .= "<g:sale_price_effective_date>". $specialFromDate .'/'. $specialToDate ."</g:sale_price_effective_date>\n";
+				}
 			}
 		}
 
@@ -225,6 +245,32 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			->addAttributeToFilter('status', 1);
 
 		return $collection;
+	}
+
+
+	public function getDiscount($product){
+
+		if($this->_couponCode != false){
+
+			$quote = Mage::getModel('sales/quote')->setStoreId(1);
+
+   		$stockItem = Mage::getModel('cataloginventory/stock_item');
+    	$stockItem->assignProduct($product)
+				->setData('stock_id', 1)
+				->setData('store_id', 1);
+
+			$stockItem->setUseConfigManageStock(false);
+		 	$stockItem->setManageStock(false);
+
+		  $quote->addProduct($product,1);
+	   	$quote->getShippingAddress()->setCountryId('BR'); 
+	   	$quote->setCouponCode($this->_couponCode);
+	   	$quote->collectTotals();
+
+	   	$product->setFinalPrice($quote->getGrandTotal());
+		}
+
+		return $product;
 	}
 
 }
