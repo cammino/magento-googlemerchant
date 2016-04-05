@@ -1,20 +1,6 @@
 <?php
 class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 {
-	private $_couponCode = false;
-	private $_couponPrefix = "";
-
-	public function  __construct() {
-
-		$this->_couponCode = Mage::getStoreConfig('catalog/googlemerchant/couponcode');
-
-		if($this->_couponCode != "" && $this->_couponCode != false){
-			$this->_couponPrefix = "?coupon_code=".$this->_couponCode;
-		}else{
-			$this->_couponCode = false;
-		}
-	}
-
 	public function getXml() {
 		$products = $this->getProducts();
 
@@ -48,12 +34,17 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	public function getProductXml($product) {
 		$categories = $this->getGoogleCategory($product);
 
-		$product = $this->getDiscount($product);
+		if($this->hasCoupon($product)){
+			$couponPrefix = "?coupon_code=" . $this->getCouponCode($product);
+			$product = $this->getDiscount($product);
+		}else{
+			$couponPrefix = "";
+		}
 
 		if (is_array($categories)) {
 			$xml  = "<item>\n";
 			$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
-			$xml .= "<link><![CDATA[". $product->getProductUrl() . $this->_couponPrefix ."]]></link>\n";
+			$xml .= "<link><![CDATA[". $product->getProductUrl() . $couponPrefix ."]]></link>\n";
 			$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
 			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
@@ -247,11 +238,21 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		return $collection;
 	}
 
+	public function hasCoupon($product){
+		$coupon = $product->getGooglemerchantCoupon();
+		
+		if($coupon != false && $coupon != ""){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public function getCouponCode($product){
+		return $product->getGooglemerchantCoupon();
+	}
 
 	public function getDiscount($product){
-
-		if($this->_couponCode != false){
-
 			$quote = Mage::getModel('sales/quote')->setStoreId(1);
 
    		$stockItem = Mage::getModel('cataloginventory/stock_item');
@@ -264,11 +265,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 		  $quote->addProduct($product,1);
 	   	$quote->getShippingAddress()->setCountryId('BR'); 
-	   	$quote->setCouponCode($this->_couponCode);
+	   	$quote->setCouponCode($this->getCouponCode($product));
 	   	$quote->collectTotals();
 
 	   	$product->setFinalPrice($quote->getGrandTotal());
-		}
 
 		return $product;
 	}
