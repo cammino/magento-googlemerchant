@@ -5,6 +5,11 @@
         </Cammino_Googlemerchant>
     </modules>
     <global>
+        <helpers>
+            <cammino_googlemerchant>
+                <class>Cammino_Googlemerchant_Helper</class>
+            </cammino_googlemerchant>
+        </helpers>
         <models>
             <googlemerchant>
                 <class>Cammino_Googlemerchant_Model</class>
