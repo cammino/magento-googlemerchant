@@ -1,6 +1,12 @@
 <?php
 class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 {
+	private $_helper;
+
+	function __construct(){
+		$this->_helper = Mage::helper("cammino_googlemerchant");
+	}
+
 	public function getXml() {
 		$products = $this->getProducts();
 
@@ -34,9 +40,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	public function getProductXml($product) {
 		$categories = $this->getGoogleCategory($product);
 
-		if($this->hasCoupon($product)){
-			$couponPrefix = "?coupon_code=" . $this->getCouponCode($product);
-			$product = $this->getDiscount($product);
+		if($this->_helper->hasCoupon($product)){
+			$couponPrefix = "?coupon_code=" . $this->_helper->getCouponCode($product);
+			$product = $this->_helper->getDiscount($product);
 		}else{
 			$couponPrefix = "";
 		}
@@ -238,39 +244,6 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		return $collection;
 	}
 
-	public function hasCoupon($product){
-		$coupon = $product->getGooglemerchantCoupon();
-		
-		if($coupon != false && $coupon != ""){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-	public function getCouponCode($product){
-		return $product->getGooglemerchantCoupon();
-	}
-
-	public function getDiscount($product){
-			$quote = Mage::getModel('sales/quote')->setStoreId(1);
-
-   		$stockItem = Mage::getModel('cataloginventory/stock_item');
-    	$stockItem->assignProduct($product)
-				->setData('stock_id', 1)
-				->setData('store_id', 1);
-
-			$stockItem->setUseConfigManageStock(false);
-		 	$stockItem->setManageStock(false);
-
-		  $quote->addProduct($product,1);
-	   	$quote->getShippingAddress()->setCountryId('BR'); 
-	   	$quote->setCouponCode($this->getCouponCode($product));
-	   	$quote->collectTotals();
-
-	   	$product->setFinalPrice($quote->getGrandTotal());
-
-		return $product;
-	}
+	
 
 }
