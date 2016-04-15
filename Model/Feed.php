@@ -57,7 +57,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$xml .= "<g:condition>new</g:condition>\n";
 			$xml .= $this->getPriceNode($product);
 			$xml .= $this->getAvailabilityNode($product);
-			$xml .= "<g:image_link><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl( $product->getImage() ) ."]]></g:image_link>\n";
+			$xml .= "<g:image_link><![CDATA[".$this->getProductImage($product)."]]></g:image_link>\n";
 
 			
 			$xml .= $this->getBrandNode($product);
@@ -244,6 +244,12 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		return $collection;
 	}
 
-	
-
+	public function getProductImage($product){
+		$merchantImage = $product->getGooglemerchantImage();
+		if($merchantImage != "" && $merchantImage != null && $merchantImage != "no_selection"){
+			return (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->getGooglemerchantImage());
+		}else{
+			return (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->getImage());
+		}
+	}
 }
