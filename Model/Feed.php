@@ -54,6 +54,11 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
 			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
+
+			if (isset($product->getEan()) && ($product->getEan() != "")) {
+				$xml .= "<g:gtin>".$product->getEan()."</g:gtin>\n";
+			}
+			
 			$xml .= "<g:condition>new</g:condition>\n";
 			$xml .= $this->getPriceNode($product);
 			$xml .= $this->getAvailabilityNode($product);
