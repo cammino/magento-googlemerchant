@@ -55,7 +55,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
 
-			if (isset($product->getEan()) && ($product->getEan() != "")) {
+			if (strval($product->getEan()) != "") {
 				$xml .= "<g:gtin>".$product->getEan()."</g:gtin>\n";
 			}
 			
