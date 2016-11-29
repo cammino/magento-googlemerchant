@@ -117,6 +117,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			return $this->getSimplePriceNode($product);
 		} else if ($product->getTypeId() == "grouped") {
 			return $this->getGroupedPriceNode($product);
+		} else if ($product->getTypeId() == "bundle") {
+			return $this->getBundlePriceNode($product);
 		}
 	}
 
@@ -162,18 +164,48 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
 	}
 
+    public function getBundlePriceNode($product){
+    	// preço default é o mesmo da tela de listagem
+        $optionCollection = $product->getTypeInstance(true)->getOptionsIds($product);
+        $selectionsCollection = Mage::getModel('bundle/selection')->getCollection();
+        $selectionsCollection->getSelect()->where('option_id in (?)', $optionCollection)->where('is_default = ?', 1);
+        $defaultPrice = 0;
+
+        foreach ($selectionsCollection as $_selection) {
+            $_selectionProduct = Mage::getModel('catalog/product')->load($_selection->getProductId());
+            $_selectionPrice = $product->getPriceModel()->getSelectionFinalTotalPrice(
+                $product,
+                $_selectionProduct,
+                0,
+                $_selection->getSelectionQty(),
+                false,
+                true
+            );
+            $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
+        }
+
+        return "<g:price>". number_format($defaultPrice, 2, '.', '') ."</g:price>\n";
+    }
+
 	public function getAvailabilityNode($product) {
 
 		if ($product->getTypeId() == "simple") {
 			return $this->getSimpleAvailabilityNode($product);
 		} else if ($product->getTypeId() == "grouped") {
 			return $this->getGroupedAvailabilityNode($product);
-		}		
+		} else if ($product->getTypeId() == "bundle") {
+			return $this->getBundleAvailabilityNode($product);
+		}
 	}
 
 	public function getSimpleAvailabilityNode($product) {
 		$stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
-		return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) ? 'in stock' : 'out of stock') ."</g:availability>\n";
+		return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") ? 'in stock' : 'out of stock') ."</g:availability>\n";
+	}
+
+	public function getBundleAvailabilityNode($product) {
+		$stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+		return "<g:availability>". (($stock->getIsInStock() == "1") || ($stock->getManageStock() == "0") ? 'in stock' : 'out of stock') ."</g:availability>\n";
 	}
 
 	public function getGroupedAvailabilityNode($product) {
@@ -235,7 +267,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$products->addAttributeToSelect('*')
 			->addAttributeToFilter('status', 1)
 			->addAttributeToFilter('visibility', array('neq' => '1'))
-			->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped')))
+			->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle')))
 			->addAttributeToSort('created_at', 'desc');
 
 		return $products;

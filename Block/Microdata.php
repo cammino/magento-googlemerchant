@@ -84,8 +84,28 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             }
 
             $price = $minimal;
-        }
+        } else if ($product->getTypeId() == "bundle") {
+            $optionCollection = $product->getTypeInstance(true)->getOptionsIds($product);
+            $selectionsCollection = Mage::getModel('bundle/selection')->getCollection();
+            $selectionsCollection->getSelect()->where('option_id in (?)', $optionCollection)->where('is_default = ?', 1);
+            $defaultPrice = 0;
 
+            foreach ($selectionsCollection as $_selection) {
+                $_selectionProduct = Mage::getModel('catalog/product')->load($_selection->getProductId());
+                $_selectionPrice = $product->getPriceModel()->getSelectionFinalTotalPrice(
+                    $product,
+                    $_selectionProduct,
+                    0,
+                    $_selection->getSelectionQty(),
+                    false,
+                    true
+                );
+                $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
+            }
+
+            return $price = ($defaultPrice);
+            }
+    
         return $price;
     }
 
@@ -94,7 +114,8 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
         if ($product->getTypeId() == "simple") {
 
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
-            return (($stock->getQty() > 0) && ($stock->getIsInStock() == "1"));
+            //return (($stock->getQty() > 0) && ($stock->getIsInStock() == "1"));
+            return (($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0");
 
         } else if ($product->getTypeId() == "grouped") {
 
@@ -110,6 +131,9 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             }
 
             return ($stock > 0);
+        } else if ($product->getTypeId() == "bundle") {
+            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+            return ($stock->getIsInStock() == "1") || ($stock->getManageStock() == "0");
         }
     }
 
