@@ -67,8 +67,11 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			
 			$xml .= $this->getBrandNode($product);
 			$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
+			$xml .= "<recomendable>" . (((strval($product->getGooglemerchantRecomendable()) == "1") || (strval($product->getGooglemerchantRecomendable()) == "")) ? "true" : "false") . "</recomendable>\n";
+
 			$xml .= $this->getCategoriesNode($categories, $product);
 			$xml .= $this->getCustomLabelNode($product);
+
 			$xml .= "</item>\n";
 			return $xml;
 		}
