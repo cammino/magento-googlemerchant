@@ -127,10 +127,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 	public function getSimplePriceNode($product) {
 
-		$xml = "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
+		$xml = "<g:price>". number_format($this->calcInCashRule($product->getPrice()), 2, '.', '') ."</g:price>\n";
 
 		if ($product->getFinalPrice() < $product->getPrice()) {
-			$xml .= "<g:sale_price>". number_format($product->getFinalPrice(), 2, '.', '') ."</g:sale_price>\n";
+			$xml .= "<g:sale_price>". number_format($this->calcInCashRule($product->getFinalPrice()), 2, '.', '') ."</g:sale_price>\n";
 
 			if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
 				$specialFromDate = date('c', strtotime($product->getSpecialFromDate()));
@@ -164,6 +164,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$minimal = end($prices);	
 		}
 
+        $minimal = $this->calcInCashRule($minimal);
+
 		return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
 	}
 
@@ -187,7 +189,22 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
         }
 
+        $defaultPrice = $this->calcInCashRule($defaultPrice);
+
         return "<g:price>". number_format($defaultPrice, 2, '.', '') ."</g:price>\n";
+    }
+
+    public function calcInCashRule($price) {
+
+        $inCashRuleId = strval(Mage::getStoreConfig('catalog/googlemerchant/incashruleid'));
+
+        if (!empty($inCashRuleId)) {
+            $rule = Mage::getModel('salesrule/rule')->load($inCashRuleId);
+            $discountPrice = ((100 - floatval($rule["discount_amount"])) / 100) * $price;
+            return $discountPrice;
+        } else {
+            return $price;
+        }
     }
 
 	public function getAvailabilityNode($product) {

@@ -12,6 +12,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $product = Mage::registry('current_product');
                 $currency = trim(Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol());
                 $productPrice = $this->getProductPrice($product);
+                $productPrice = $this->calcInCashRule($productPrice);
                 $availability = $this->getProductAvailability($product);
                 $RatingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
 
@@ -143,6 +144,19 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             ->addAttributeToFilter('status', 1);
 
         return $collection;
+    }
+
+    public function calcInCashRule($price) {
+
+        $inCashRuleId = strval(Mage::getStoreConfig('catalog/googlemerchant/incashruleid'));
+
+        if (!empty($inCashRuleId)) {
+            $rule = Mage::getModel('salesrule/rule')->load($inCashRuleId);
+            $discountPrice = ((100 - floatval($rule["discount_amount"])) / 100) * $price;
+            return $discountPrice;
+        } else {
+            return $price;
+        }
     }
 
 }
