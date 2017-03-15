@@ -34,6 +34,16 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</incashruleid>
+						<hidemicrodata translate="label">
+                            <label>Esconder Microdata</label>
+                            <comment>Ative essa opção se o seu tema implementa os microdados direto no HTML</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        </hidemicrodata>
 					</fields>
 				</googlemerchant>
 			</groups>

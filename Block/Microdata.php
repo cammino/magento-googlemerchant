@@ -3,6 +3,12 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
 {
     protected function _toHtml() {
 
+        $hideMicrodata = boolval(Mage::getStoreConfig('catalog/googlemerchant/hidemicrodata'));
+        
+        if($hideMicrodata){
+            return "";
+        }
+
         try {
             $result = array();
 
