@@ -51,7 +51,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$xml  = "<item>\n";
 			$xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
 			$xml .= "<link><![CDATA[". $product->getProductUrl() . $couponPrefix ."]]></link>\n";
-			$xml .= "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
+			$xml .= $this->getProductDescription($product);
 			$xml .= "<g:id>". $product->getId() ."</g:id>\n";
 			$xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
 
@@ -71,6 +71,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 			$xml .= $this->getCategoriesNode($categories, $product);
 			$xml .= $this->getCustomLabelNode($product);
+			$xml .= $this->getAdditionalNodes($product);
 
 			$xml .= "</item>\n";
 			return $xml;
@@ -308,5 +309,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		}else{
 			return (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->getImage());
 		}
+	}
+
+	public function getProductDescription($product){
+		return "<description><![CDATA[". strip_tags(substr($product->getDescription(), 0, 5000)) ."]]></description>\n";
+	}
+
+	public function getAdditionalNodes($product){
+		return "";
 	}
 }
