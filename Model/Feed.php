@@ -63,7 +63,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			$xml .= $this->getPriceNode($product);
 			$xml .= $this->getAvailabilityNode($product);
 			$xml .= "<g:image_link><![CDATA[".$this->getProductImage($product)."]]></g:image_link>\n";
-
+			$xml .= $this->getAllImageProduct($product);
 			
 			$xml .= $this->getBrandNode($product);
 			$xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
@@ -317,5 +317,14 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 	public function getAdditionalNodes($product){
 		return "";
+	}
+
+	public function getAllImageProduct($product) {
+		$product = Mage::getModel('catalog/product')->load($product->getId()); // carrega produto
+		$medias = $product->getMediaAttributes(); // todas as imagens
+		foreach($medias as $index=>$media) {
+			$xml .= "<g:image_". $index . ">". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->{'get'.$index}()) . "</g:imagem_". $index . ">";
+		}
+		 return $xml;
 	}
 }
