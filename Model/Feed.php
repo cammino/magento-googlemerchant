@@ -323,7 +323,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$product = Mage::getModel('catalog/product')->load($product->getId()); // carrega produto
 		$medias = $product->getMediaAttributes(); // todas as imagens
 		foreach($medias as $index=>$media) {
-			$xml .= "<g:image_". $index . "><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->{'get'.$index}()) . "]]></g:imagem_". $index . ">";
+			$xml .= "<g:image_". $index . "><![CDATA[". (string)Mage::getModel('catalog/product_media_config')->getMediaUrl($product->{'get'.$index}()) . "]]></g:image_". $index . ">";
 		}
 		 return $xml;
 	}
