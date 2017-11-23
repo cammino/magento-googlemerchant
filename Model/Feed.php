@@ -155,7 +155,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 		foreach($associated as $item) {
 			if ($item->getFinalPrice() > 0) {
-				array_push($prices, $item->getPrice());
+				array_push($prices, $item->getFinalPrice());
 			}
 		}
 
