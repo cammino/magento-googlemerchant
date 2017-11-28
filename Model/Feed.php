@@ -116,8 +116,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	public function getPriceNode($product) {
 
 		$xml = "";
-
-		if ($product->getTypeId() == "simple") {
+		if ($product->getTypeId() == "simple" || $product->getTypeId() == 'configurable') {
 			return $this->getSimplePriceNode($product);
 		} else if ($product->getTypeId() == "grouped") {
 			return $this->getGroupedPriceNode($product);
@@ -212,6 +211,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 		if ($product->getTypeId() == "simple") {
 			return $this->getSimpleAvailabilityNode($product);
+		} 
+		else if ($product->getTypeId() == "configurable") {
+			return $this->getConfigurableAvailabilityNode($product);
 		} else if ($product->getTypeId() == "grouped") {
 			return $this->getGroupedAvailabilityNode($product);
 		} else if ($product->getTypeId() == "bundle") {
@@ -222,6 +224,11 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 	public function getSimpleAvailabilityNode($product) {
 		$stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
 		return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") ? 'in stock' : 'out of stock') ."</g:availability>\n";
+	}
+
+	public function getConfigurableAvailabilityNode($product) {
+		$stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+		return "<g:availability>". ($stock->getIsInStock() == "1"  ? 'in stock' : 'out of stock') ."</g:availability>\n";
 	}
 
 	public function getBundleAvailabilityNode($product) {
@@ -288,7 +295,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$products->addAttributeToSelect('*')
 			->addAttributeToFilter('status', 1)
 			->addAttributeToFilter('visibility', array('neq' => '1'))
-			->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle')))
+			->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
 			->addAttributeToSort('created_at', 'desc');
 
 		return $products;
