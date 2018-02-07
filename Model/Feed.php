@@ -61,6 +61,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			
 			$xml .= "<g:condition>new</g:condition>\n";
 			$xml .= $this->getPriceNode($product);
+			$xml .= $this->getBilletPriceNode($product);
 			$xml .= $this->getAvailabilityNode($product);
 			$xml .= "<g:image_link><![CDATA[".$this->getProductImage($product)."]]></g:image_link>\n";
 			$xml .= $this->getAllImageProduct($product);
@@ -122,6 +123,21 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			return $this->getGroupedPriceNode($product);
 		} else if ($product->getTypeId() == "bundle") {
 			return $this->getBundlePriceNode($product);
+		}
+	}
+
+	public function getBilletPriceNode($product) {
+		$modules = Mage::getConfig()->getNode('modules')->children();
+		$modulesArray = (array) $modules;
+
+		if(isset($modulesArray['Cammino_Billetdiscount'])) {
+			$helper = Mage::helper("billetdiscount");
+			$discountPercent = $helper->getPercentDiscount($product->getFinalPrice());
+			$price = $product->getFinalPrice() - ($product->getFinalPrice() * ($discountPercent / 100));
+			$price = number_format($price, 2, '.', '');			
+			return "<g:billet_price>". $price ."</g:billet_price>\n";
+		} else {
+			return "";
 		}
 	}
 
