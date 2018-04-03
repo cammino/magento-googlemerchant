@@ -8,8 +8,9 @@ class FeedTest extends PHPUnit_Framework_TestCase
     protected $feed;
 
     protected function setUp(){ 
-        $this->product = Mage::getModel('catalog/product')->load(56);
         $this->feed = Mage::getModel('googlemerchant/feed');
+        $collection = $this->feed->getProducts()->getFirstItem();
+        $this->product = Mage::getModel('catalog/product')->load($collection->getId());
     }
 
     public function testProductForTestsExists() {
