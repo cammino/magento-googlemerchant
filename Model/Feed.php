@@ -13,7 +13,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$xml = $this->getXmlStart();
 
 		foreach ($products as $product) {
-			$xml .= $this->getProductXml($product);
+            $xml .= $this->getProductXml($product);
 		}
 
 		$xml .= $this->getXmlEnd();
@@ -60,8 +60,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 			}
 			
 			$xml .= "<g:condition>new</g:condition>\n";
-			$xml .= $this->getPriceNode($product);
-			$xml .= $this->getBilletPriceNode($product);
+            $xml .= $this->getPriceNode($product);
+            $xml .= $this->getBilletPriceNode($product);
+            $xml .= $this->getInstallmentNode($product);
 			$xml .= $this->getAvailabilityNode($product);
 			$xml .= "<g:image_link><![CDATA[".$this->getProductImage($product)."]]></g:image_link>\n";
 			$xml .= $this->getAllImageProduct($product);
@@ -112,7 +113,19 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		}
 
 		return (empty($categories['googleCategory'])) ? false : $categories;
-	}
+    }
+    
+    public function getInstallmentNode($product) {
+        $xml = "";
+        $installments = Mage::getSingleton('installments/standard')->getInstallments($product->getFinalPrice());
+        if ( isset($installments) && $installments["value"] > 0  ) {
+            $xml = "<g:installment>
+                <g:months> " . $installments["qty"] . "</g:months>
+                <g:amount>" . $installments["value"] . " BRL</g:amount>
+            </g:installment>";
+        }
+        return $xml;
+    }
 
 	public function getPriceNode($product) {
 
