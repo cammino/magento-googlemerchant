@@ -120,7 +120,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         $installments = Mage::getSingleton('installments/standard')->getInstallments($product->getFinalPrice());
         if ( isset($installments) && $installments["value"] > 0  ) {
             $xml = "<g:installment>
-                <g:months> " . $installments["qty"] . "</g:months>
+                <g:months>" . $installments["qty"] . "</g:months>
                 <g:amount>" . $installments["value"] . " BRL</g:amount>
             </g:installment>";
         }
