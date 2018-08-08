@@ -159,6 +159,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 		$xml = "<g:price>". number_format($this->calcInCashRule($product->getPrice()), 2, '.', '') ."</g:price>\n";
 
 		if ($product->getFinalPrice() < $product->getPrice()) {
+			
+			$xml .= '<has_sale_price>true</has_sale_price>';
 			$xml .= "<g:sale_price>". number_format($this->calcInCashRule($product->getFinalPrice()), 2, '.', '') ."</g:sale_price>\n";
 
 			if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
