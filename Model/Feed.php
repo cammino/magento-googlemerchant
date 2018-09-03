@@ -160,7 +160,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
 		if ($product->getFinalPrice() < $product->getPrice()) {
 			
-			$xml .= '<has_sale_price>true</has_sale_price>';
+			$xml .= '<g:has_sale_price>true</g:has_sale_price>';
 			$xml .= "<g:sale_price>". number_format($this->calcInCashRule($product->getFinalPrice()), 2, '.', '') ."</g:sale_price>\n";
 
 			if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
@@ -172,6 +172,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 				if ((strtotime($product->getSpecialToDate())+$dateOffset) >= $currentDate->getTimestamp()) {
 					$xml .= "<g:sale_price_effective_date>". $specialFromDate .'/'. $specialToDate ."</g:sale_price_effective_date>\n";
 				}
+			} else {
+				$xml .= '<g:has_sale_price>false</g:has_sale_price>';
 			}
 		}
 
