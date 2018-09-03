@@ -172,9 +172,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 				if ((strtotime($product->getSpecialToDate())+$dateOffset) >= $currentDate->getTimestamp()) {
 					$xml .= "<g:sale_price_effective_date>". $specialFromDate .'/'. $specialToDate ."</g:sale_price_effective_date>\n";
 				}
-			} else {
-				$xml .= '<g:has_sale_price>false</g:has_sale_price>';
 			}
+		} else {
+			$xml .= '<g:has_sale_price>false</g:has_sale_price>';
 		}
 
 		return $xml;
