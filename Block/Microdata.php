@@ -1,11 +1,26 @@
 <?php
+/**
+* Microdata.php
+*
+* @category Cammino
+* @package  Cammino_Googlemerchant
+* @author   Cammino Digital <suporte@cammino.com.br>
+* @license  http://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+* @link     https://github.com/cammino/magento-googlemerchant
+*/
+
 class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
 {
-    protected function _toHtml() {
-
+    /**
+    * Function responsible for review products
+    *
+    * @return null
+    */
+    protected function _toHtml()
+    {
         $hideMicrodata = (bool) Mage::getStoreConfig('catalog/googlemerchant/hidemicrodata');
         
-        if($hideMicrodata){
+        if ($hideMicrodata) {
             return "";
         }
 
@@ -20,17 +35,17 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $productPrice = $this->getProductPrice($product);
                 $productPrice = $this->calcInCashRule($productPrice);
                 $availability = $this->getProductAvailability($product);
-                $RatingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
+                $ratingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
 
                 $result[] = "<div itemscope itemtype=\"http://schema.org/Product\">";
                 $result[] = sprintf("<meta itemprop=\"sku\" content=\"%s\">", $this->escapeHtml($product->getId()));
                 $result[] = sprintf("<meta itemprop=\"name\" content=\"%s\">", $this->escapeHtml($product->getName()));
 
                 /* Product Rating */
-                if($RatingOb->getSum() && $RatingOb->getCount()){
-                    $ratingSum = $RatingOb->getSum() / 20;      // Cada estrela equivale a 20
-                    $ratingCount = $RatingOb->getCount() / 2;   // 2 avaliacoes por pessoa
-                    $rating = ($ratingSum / $ratingCount) / 2;  // Media das 2 avaliacoes
+                if ($ratingOb->getSum() && $ratingOb->getCount()) {
+                    $ratingSum = $ratingOb->getSum() / 20;      // Each star is equivalent to 20
+                    $ratingCount = $ratingOb->getCount() / 2;   // 2 reviews by person
+                    $rating = ($ratingSum / $ratingCount) / 2;  // Average 2 Reviews
                     
                     $result[] = "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\">";
                     $result[] = "<meta itemprop=\"bestRating\" content=\"5\">"; 
@@ -56,11 +71,19 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             return implode("\n", $result);
             
         } catch (Exception $ex) {
-        	return "";
+            return "";
         }
     }
 
-    protected function getProductPrice($product) {
+    /**
+    * Function responsible for get product and return price
+    *
+    * @param object $product Product object
+    *
+    * @return float
+    */
+    protected function getProductPrice($product)
+    {
         $price = 0;
         $now   = Mage::getModel('core/date')->date('Y-m-d 00:00:00');
         
@@ -78,7 +101,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             $prices = array();
             $minimal = 0;
 
-            foreach($associated as $item) {
+            foreach ($associated as $item) {
                 if ($item->getPrice() > 0) {
                     array_push($prices, $item->getPrice());
                 }
@@ -111,13 +134,20 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             }
 
             return $price = ($defaultPrice);
-            }
+        }
     
         return $price;
     }
 
-    protected function getProductAvailability($product) {
-
+    /**
+    * Function responsible for get product availability
+    *
+    * @param object $product Product object
+    *
+    * @return boolean
+    */
+    protected function getProductAvailability($product)
+    {
         if ($product->getTypeId() == "simple") {
 
             $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
@@ -129,7 +159,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
             $associated = $this->getAssociatedProducts($product);
             $stock = 0;
 
-            foreach($associated as $item) {
+            foreach ($associated as $item) {
                 $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getId());
 
                 if ($itemStock->getIsInStock() == "1") {
@@ -144,7 +174,15 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
         }
     }
 
-    protected function getAssociatedProducts($product) {
+    /**
+    * Function responsible for get associated products and filters and attribute, return collection
+    *
+    * @param object $product Product object
+    *
+    * @return object
+    */
+    protected function getAssociatedProducts($product)
+    {
         $collection = $product->getTypeInstance(true)->getAssociatedProductCollection($product)
             ->addAttributeToSelect('*')
             ->addAttributeToFilter('status', 1);
@@ -152,8 +190,15 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
         return $collection;
     }
 
-    public function calcInCashRule($price) {
-
+    /**
+    * Function responsible for calc cash rule and return discount price or price
+    *
+    * @param object $price Product price
+    *
+    * @return float
+    */
+    public function calcInCashRule($price)
+    {
         $inCashRuleId = strval(Mage::getStoreConfig('catalog/googlemerchant/incashruleid'));
 
         if (!empty($inCashRuleId)) {
