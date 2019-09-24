@@ -80,6 +80,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     */
     public function getProductXml($product)
     {
+        if($product->getGooglemerchantDisable() == "1") {
+            return "";
+        }
+
         $categories = $this->getGoogleCategory($product);
 
         if ($this->_helper->hasCoupon($product)) {
