@@ -574,10 +574,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return string
     */
-    public function getAdditionalNodes($product)
-    {
-        return "";
-    }
+	public function getAdditionalNodes($product){
+		$helper = Mage::helper("cammino_googlemerchant/custom");
+		return $helper->getAdditionalNodes($product);
+	}
 
     /**
     * Function responsible for get all image product
