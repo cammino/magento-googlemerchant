@@ -77,6 +77,15 @@
                             <show_in_store>1</show_in_store>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </hidemicrodata>
+                        <attributesize translate="label">
+                            <label>Atributo de Tamanho</label>
+                            <comment>Informar código do atributo que contém o tamanho do produto</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </attributesize>
 					</fields>
 				</googlemerchant>
 			</groups>

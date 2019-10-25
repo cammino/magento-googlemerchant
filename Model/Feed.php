@@ -119,6 +119,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
             $xml .= $this->getCategoriesNode($categories, $product);
             $xml .= $this->getCustomLabelNode($product);
+            $xml .= $this->getSizeNode($product);
             $xml .= $this->getAdditionalNodes($product);
 
             $xml .= "</item>\n";
@@ -593,6 +594,28 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
         foreach ($medias as $index=>$media) {
                 $xml .= "<g:image_". $index . "><![CDATA[". (string) Mage::getModel('catalog/product_media_config')->getMediaUrl($product->{'get'.$index}()) . "]]></g:image_". $index . ">";
+        }
+
+        return $xml;
+    }
+
+    /**
+    * Function responsible for get size of product
+    *
+    * @param object $product Product object
+    *
+    * @return string
+    */
+    public function getSizeNode($product)
+    {
+        $attributeSize = Mage::getStoreConfig('catalog/googlemerchant/attributesize');
+        $xml = "";
+
+        if (($attributeSize != null) && ($attributeSize != "")) {
+            $size = $product->getAttributeText($attributeSize);
+            if (($size != null) && ($size != "")) {
+                $xml = "<g:size>". $size ."</g:size>\n";
+            }
         }
 
         return $xml;
