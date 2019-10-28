@@ -612,9 +612,23 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         $xml = "";
 
         if (($attributeSize != null) && ($attributeSize != "")) {
-            $size = $product->getAttributeText($attributeSize);
-            if (($size != null) && ($size != "")) {
-                $xml = "<g:size>". $size ."</g:size>\n";
+            $sizes = array();
+            if ($product->isConfigurable()) {
+                $associatedProducts = $product->getTypeInstance(true)->getUsedProducts(null, $product);
+                foreach ($associatedProducts as $associated) {
+                    $size = $associated->getAttributeText($attributeSize);
+                    if (strval($size) != '') {
+                        $sizes[] = $associated->getAttributeText($attributeSize);
+                    }
+                }
+                if (!empty($sizes)) {
+                    $xml = "<g:size>". implode(",", $sizes) ."</g:size>\n";
+                }
+            } else {
+                $size = $product->getAttributeText($attributeSize);
+                if (($size != null) && ($size != "")) {
+                    $xml = "<g:size>". $size ."</g:size>\n";
+                }
             }
         }
 
