@@ -405,9 +405,26 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     */
     public function getConfigurableAvailabilityNode($product)
     {
-        $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+        $fatherStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+        $_product = Mage::getModel('catalog/product')->load($product);
+        $childProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
 
-        return "<g:availability>". ($stock->getIsInStock() == "1"  ? 'in stock' : 'out of stock') ."</g:availability>\n";
+        $stock = null;
+
+        if ($fatherStock->getIsInStock() == "0") {
+            $stock = 0;
+        }
+        else {
+            foreach ($childProducts as $child) {
+                $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child->getId());
+
+                if ($itemStock->getIsInStock() == "1") {
+                    $stock += $itemStock->getQty();
+                }
+            }
+        }
+
+        return "<g:availability>". (($stock) ? 'in stock' : 'out of stock') ."</g:availability>\n";
     }
 
     /**
