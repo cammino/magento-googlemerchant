@@ -393,7 +393,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
 
-        return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") ? 'in stock' : 'out of stock') ."</g:availability>\n";
+        return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") || (intval($stock->getBackorders()) == 1) || (intval($stock->getBackorders()) == 2) ? 'in stock' : 'out of stock') ."</g:availability>\n";
     }
 
     /**
@@ -418,7 +418,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             foreach ($childProducts as $child) {
                 $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child->getId());
 
-                if ($itemStock->getIsInStock() == "1") {
+                if ( ($itemStock->getIsInStock() == "1") || (intval($itemStock->getBackorders()) == 1) || (intval($itemStock->getBackorders()) == 2) ){
                     $stock += $itemStock->getQty();
                 }
             }
