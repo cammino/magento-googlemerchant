@@ -32,7 +32,7 @@ class Cammino_Googlemerchant_Block_Rating extends Mage_Core_Block_Template
               {
                 "merchant_id":' .  Mage::getStoreConfig("catalog/googlemerchant/merchantid") . ',
                 "order_id": "' .  $orderId . '",
-                "email": "' .  $order->getShippingAddress()->getEmail() . '",
+                "email": "' .  $order->getBillingAddress()->getEmail() . '",
                 "delivery_country":"' . Mage::getStoreConfig('catalog/googlemerchant/deliverycountry') .  '",
                 "estimated_delivery_date": "' . date('Y-m-d', strtotime("+" . Mage::getStoreConfig('catalog/googlemerchant/deliverydays') . " days")) . '",
                 "opt_in_style": "' . Mage::getStoreConfig('catalog/googlemerchant/optinstyle') . '"
