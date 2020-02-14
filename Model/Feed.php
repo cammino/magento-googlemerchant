@@ -191,7 +191,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     public function getInstallmentNode($product)
     {
         $xml = "";
-        $installments = Mage::getSingleton('installments/standard')->getInstallments($product->getFinalPrice());
+        $installments = Mage::getSingleton('installments/standard')->getInstallments($this->getCatalogPromoPrice($product));
         if ( isset($installments) && $installments["value"] > 0  ) {
             $xml = "<g:installment>
                 <g:months>" . $installments["qty"] . "</g:months>
@@ -235,8 +235,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
         if (isset($modulesArray['Cammino_Billetdiscount'])) {
             $helper = Mage::helper("billetdiscount");
-            $discountPercent = $helper->getPercentDiscount($product->getFinalPrice());
-            $price = $product->getFinalPrice() - ($product->getFinalPrice() * ($discountPercent / 100));
+            $discountPercent = $helper->getPercentDiscount($this->getCatalogPromoPrice($product));
+            $price = $this->getCatalogPromoPrice($product) - ($this->getCatalogPromoPrice($product) * ($discountPercent / 100));
             $price = number_format($price, 2, '.', '');
 
             return "<g:billet_price>". $price ."</g:billet_price>\n";
@@ -256,8 +256,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $xml = "<g:price>". number_format($this->calcInCashRule($product->getPrice()), 2, '.', '') ."</g:price>\n";
 
-        if ($product->getFinalPrice() < $product->getPrice()) {
-            $xml .= "<g:sale_price>". number_format($this->calcInCashRule($product->getFinalPrice()), 2, '.', '') ."</g:sale_price>\n";
+        if ($this->getCatalogPromoPrice($product) < $product->getPrice()) {
+            $xml .= "<g:sale_price>". number_format($this->calcInCashRule($this->getCatalogPromoPrice($product)), 2, '.', '') ."</g:sale_price>\n";
 
             if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
                 $specialFromDate = date('c', strtotime($product->getSpecialFromDate()));
@@ -289,7 +289,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
         foreach ($associated as $item) {
             if ($item->getFinalPrice() > 0) {
-                array_push($prices, $item->getFinalPrice());
+                array_push($prices, $this->getCatalogPromoPrice($item));
             }
         }
 
@@ -358,6 +358,22 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     }
 
     /**
+    * Function responsible for process catalogo promo rules
+    *
+    * @param object $price Product object
+    *
+    * @return float
+    */
+    public function getCatalogPromoPrice($product)
+    {
+        $now = Mage::getSingleton('core/date')->timestamp( time() );
+        $websiteId = Mage::app()->getStore()->getWebsiteId();
+        $customerGroup = 0;
+        $productId = $product->getId();
+        return Mage::getResourceModel('catalogrule/rule')->getRulePrice($now, $websiteId, $customerGroup, $productId);
+    }
+
+    /**
     * Function responsible for get node availability
     *
     * @param object $product Product object
@@ -413,12 +429,14 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
         if ($fatherStock->getIsInStock() == "0") {
             $stock = 0;
+        } else if ((intval($fatherStock->getBackorders()) == 1) || (intval($fatherStock->getBackorders()) == 2)) {
+            $stock = 1;
         }
         else {
             foreach ($childProducts as $child) {
                 $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child->getId());
 
-                if ( ($itemStock->getIsInStock() == "1") || (intval($itemStock->getBackorders()) == 1) || (intval($itemStock->getBackorders()) == 2) ){
+                if ($itemStock->getIsInStock() == "1"){
                     $stock += $itemStock->getQty();
                 }
             }
