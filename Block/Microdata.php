@@ -33,7 +33,6 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $product = Mage::registry('current_product');
                 $currency = trim(Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol());
                 $productPrice = $this->getProductPrice($product);
-                $productPrice = $this->calcInCashRule($productPrice);
                 $availability = $this->getProductAvailability($product);
                 $ratingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
 
@@ -84,59 +83,31 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
     */
     protected function getProductPrice($product)
     {
-        $price = 0;
-        $now   = Mage::getModel('core/date')->date('Y-m-d 00:00:00');
-        
-        if ($product->getTypeId() == "simple") {
+        $feed = Mage::getModel('googlemerchant/feed');
+        $xml = $feed->getPriceNode($product);
+        $piped = str_replace('<g:price>', '', $xml);
+        $piped = str_replace('</g:price>', '', $piped);
+        $piped = str_replace('<g:sale_price>', '|', $piped);
+        $piped = str_replace('</g:sale_price>', '', $piped);
+        $piped = str_replace('<g:sale_price_effective_date>', '|', $piped);
+        $piped = str_replace('</g:sale_price_effective_date>', '', $piped);
+        $priceParts = explode('|', $piped);
 
-            $price = $product->getPrice();
-            
-            if ($product->getSpecialPrice() > 0 && ($now >= $product->getSpecialFromDate() && ( ($product->getSpecialToDate() == "") || $now <= $product->getSpecialToDate()))) {
-                $price = $product->getSpecialPrice();
+        var_dump($priceParts);
+
+        if (count($priceParts) == 3) {
+            $period = explode('/', $priceParts[2]);
+            $currentDate = new DateTime();
+            if (( strtotime($period[0]) >= $currentDate ) && ( strtotime($period[1]) <= $currentDate )) {
+                return $priceParts[1];
+            } else {
+                return $priceParts[0];
             }
-
-        } else if ($product->getTypeId() == "grouped") {
-
-            $associated = $this->getAssociatedProducts($product);
-            $prices = array();
-            $minimal = 0;
-
-            foreach ($associated as $item) {
-                if ($item->getPrice() > 0) {
-                    array_push($prices, $item->getPrice());
-                }
-            }
-
-            rsort($prices, SORT_NUMERIC);
-
-            if (count($prices) > 0) {
-                $minimal = end($prices);    
-            }
-
-            $price = $minimal;
-        } else if ($product->getTypeId() == "bundle") {
-            $optionCollection = $product->getTypeInstance(true)->getOptionsIds($product);
-            $selectionsCollection = Mage::getModel('bundle/selection')->getCollection();
-            $selectionsCollection->getSelect()->where('option_id in (?)', $optionCollection)->where('is_default = ?', 1);
-            $defaultPrice = 0;
-
-            foreach ($selectionsCollection as $_selection) {
-                $_selectionProduct = Mage::getModel('catalog/product')->load($_selection->getProductId());
-                $_selectionPrice = $product->getPriceModel()->getSelectionFinalTotalPrice(
-                    $product,
-                    $_selectionProduct,
-                    0,
-                    $_selection->getSelectionQty(),
-                    false,
-                    true
-                );
-                $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
-            }
-
-            return $price = ($defaultPrice);
+        } else if (count($priceParts) == 2) {
+            return $priceParts[1];
+        } else {
+            return $priceParts[0];
         }
-    
-        return $price;
     }
 
     /**
@@ -148,66 +119,12 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
     */
     protected function getProductAvailability($product)
     {
-        if ($product->getTypeId() == "simple") {
+        $feed = Mage::getModel('googlemerchant/feed');
+        $xml = $feed->getAvailabilityNode($product);
+        $availability = str_replace('<g:availability>', '', $xml);
+        $availability = str_replace('</g:availability>', '', $availability);
 
-            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
-            //return (($stock->getQty() > 0) && ($stock->getIsInStock() == "1"));
-            return (($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0");
-
-        } else if ($product->getTypeId() == "grouped") {
-
-            $associated = $this->getAssociatedProducts($product);
-            $stock = 0;
-
-            foreach ($associated as $item) {
-                $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getId());
-
-                if ($itemStock->getIsInStock() == "1") {
-                    $stock += $itemStock->getQty();
-                }
-            }
-
-            return ($stock > 0);
-        } else if ($product->getTypeId() == "bundle") {
-            $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
-            return ($stock->getIsInStock() == "1") || ($stock->getManageStock() == "0");
-        }
-    }
-
-    /**
-    * Function responsible for get associated products and filters and attribute, return collection
-    *
-    * @param object $product Product object
-    *
-    * @return object
-    */
-    protected function getAssociatedProducts($product)
-    {
-        $collection = $product->getTypeInstance(true)->getAssociatedProductCollection($product)
-            ->addAttributeToSelect('*')
-            ->addAttributeToFilter('status', 1);
-
-        return $collection;
-    }
-
-    /**
-    * Function responsible for calc cash rule and return discount price or price
-    *
-    * @param object $price Product price
-    *
-    * @return float
-    */
-    public function calcInCashRule($price)
-    {
-        $inCashRuleId = strval(Mage::getStoreConfig('catalog/googlemerchant/incashruleid'));
-
-        if (!empty($inCashRuleId)) {
-            $rule = Mage::getModel('salesrule/rule')->load($inCashRuleId);
-            $discountPrice = ((100 - floatval($rule["discount_amount"])) / 100) * $price;
-            return $discountPrice;
-        } else {
-            return $price;
-        }
+        return ($availability == "in stock");
     }
 
 }

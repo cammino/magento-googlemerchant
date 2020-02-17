@@ -254,10 +254,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     */
     public function getSimplePriceNode($product)
     {
-        $xml = "<g:price>". number_format($this->calcInCashRule($product->getPrice()), 2, '.', '') ."</g:price>\n";
+        $xml = "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
 
         if ($this->getCatalogPromoPrice($product) < $product->getPrice()) {
-            $xml .= "<g:sale_price>". number_format($this->calcInCashRule($this->getCatalogPromoPrice($product)), 2, '.', '') ."</g:sale_price>\n";
+            $xml .= "<g:sale_price>". number_format($this->getCatalogPromoPrice($product), 2, '.', '') ."</g:sale_price>\n";
 
             if (($product->getSpecialFromDate() != "") && ($product->getSpecialToDate() != "")) {
                 $specialFromDate = date('c', strtotime($product->getSpecialFromDate()));
@@ -299,8 +299,6 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $minimal = end($prices);
         }
 
-        $minimal = $this->calcInCashRule($minimal);
-
         return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
     }
 
@@ -332,29 +330,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
         }
 
-        $defaultPrice = $this->calcInCashRule($defaultPrice);
-
         return "<g:price>". number_format($defaultPrice, 2, '.', '') ."</g:price>\n";
-    }
-    
-    /**
-    * Function responsible for call cash rule
-    *
-    * @param object $price Product object
-    *
-    * @return float
-    */
-    public function calcInCashRule($price)
-    {
-        $inCashRuleId = strval(Mage::getStoreConfig('catalog/googlemerchant/incashruleid'));
-
-        if (!empty($inCashRuleId)) {
-            $rule = Mage::getModel('salesrule/rule')->load($inCashRuleId);
-            $discountPrice = ((100 - floatval($rule["discount_amount"])) / 100) * $price;
-            return $discountPrice;
-        } else {
-            return $price;
-        }
     }
 
     /**
@@ -370,7 +346,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         $websiteId = Mage::app()->getStore()->getWebsiteId();
         $customerGroup = 0;
         $productId = $product->getId();
-        return Mage::getResourceModel('catalogrule/rule')->getRulePrice($now, $websiteId, $customerGroup, $productId);
+        $promoPrice = Mage::getResourceModel('catalogrule/rule')->getRulePrice($now, $websiteId, $customerGroup, $productId);
+
+        if ($promoPrice <= $product->getFinalPrice()) {
+            return $promoPrice;
+        } else {
+            return $product->getFinalPrice();
+        }
     }
 
     /**
