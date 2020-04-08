@@ -49,8 +49,8 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                     $result[] = "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\">";
                     $result[] = "<meta itemprop=\"bestRating\" content=\"5\">"; 
                     $result[] = "<meta itemprop=\"worstRating\" content=\"1\">";
-                    $result[] = sprintf("<meta itemprop=\"ratingValue\" content=\"%s\">", $rating);
-                    $result[] = sprintf("<meta itemprop=\"ratingCount\" content=\"%s\">", $ratingCount);
+                    $result[] = sprintf("<meta itemprop=\"ratingValue\" content=\"%s\">", intval($rating));
+                    $result[] = sprintf("<meta itemprop=\"ratingCount\" content=\"%s\">", intval($ratingCount));
                     $result[] = "</div>";
                 }
 
