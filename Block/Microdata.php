@@ -93,8 +93,6 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
         $piped = str_replace('</g:sale_price_effective_date>', '', $piped);
         $priceParts = explode('|', $piped);
 
-        var_dump($priceParts);
-
         if (count($priceParts) == 3) {
             $period = explode('/', $priceParts[2]);
             $currentDate = new DateTime();
