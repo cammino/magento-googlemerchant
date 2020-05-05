@@ -391,7 +391,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $stock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
 
-        return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") || (intval($stock->getBackorders()) == 1) || (intval($stock->getBackorders()) == 2) ? 'in stock' : 'out of stock') ."</g:availability>\n";
+        return "<g:availability>". ((($stock->getQty() > 0) && ($stock->getIsInStock() == "1")) || ($stock->getManageStock() == "0") || ((intval($stock->getBackorders()) == 1) && ($stock->getIsInStock() == "1")) || ((intval($stock->getBackorders()) == 2) && ($stock->getIsInStock() == "1")) ? 'in stock' : 'out of stock') ."</g:availability>\n";
     }
 
     /**
