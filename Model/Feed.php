@@ -348,7 +348,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         $productId = $product->getId();
         $promoPrice = Mage::getResourceModel('catalogrule/rule')->getRulePrice($now, $websiteId, $customerGroup, $productId);
 
-        if ($promoPrice <= $product->getFinalPrice()) {
+        if (($promoPrice <= $product->getFinalPrice()) && ($promoPrice > 0)) {
             return $promoPrice;
         } else {
             return $product->getFinalPrice();
