@@ -121,7 +121,8 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
         $xml = $feed->getAvailabilityNode($product);
         $availability = str_replace('<g:availability>', '', $xml);
         $availability = str_replace('</g:availability>', '', $availability);
-
+        $availability = preg_replace( "/\r|\n/", "", (string)$availability);
+        
         return ($availability == "in stock");
     }
 
