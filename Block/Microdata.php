@@ -39,6 +39,10 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 $result[] = "<div itemscope itemtype=\"http://schema.org/Product\">";
                 $result[] = sprintf("<meta itemprop=\"sku\" content=\"%s\">", $this->escapeHtml($product->getId()));
                 $result[] = sprintf("<meta itemprop=\"name\" content=\"%s\">", $this->escapeHtml($product->getName()));
+                $result[] = sprintf("<meta itemprop=\"description\" content=\"%s\">", $this->escapeHtml($product->getDescription()));
+                $result[] = sprintf("<meta itemprop=\"image\" content=\"%s\">", $this->helper('catalog/image')->init($product, 'small_image')->keepFrame(true)->resize(500, Mage::helper("themeconfig")->getProductImageVerticalThemeHeight()));
+                $result[] = sprintf("<meta itemprop=\"url\" content=\"%s\">", $this->escapeHtml($product->getProductUrl()));
+
 
                 /* Product Rating */
                 if ($ratingOb->getSum() && $ratingOb->getCount()) {
