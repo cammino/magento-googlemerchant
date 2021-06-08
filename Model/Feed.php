@@ -416,10 +416,12 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         }
         else {
             foreach ($childProducts as $child) {
-                $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child->getId());
-
-                if ($itemStock->getIsInStock() == "1"){
-                    $stock += $itemStock->getQty();
+                $_child = Mage::getModel('catalog/product')->load($child->getId());
+                if($_child->getStatus() == 1) {
+                    $itemStock = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child->getId());
+                    if ($itemStock->getIsInStock() == "1"){
+                        $stock += $itemStock->getQty();
+                    }
                 }
             }
         }
