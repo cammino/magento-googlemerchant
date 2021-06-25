@@ -12,7 +12,7 @@
 class Cammino_Googlemerchant_FeedController extends Mage_Core_Controller_Front_Action
 {
     /**
-    * Function responsible controller index action
+    * Action to generate product feed
     *
     * @return null
     */
@@ -21,6 +21,17 @@ class Cammino_Googlemerchant_FeedController extends Mage_Core_Controller_Front_A
         $feed = Mage::getModel('googlemerchant/feed');
         $xml = $feed->getXml();
         echo $xml;
+    }
+
+    /**
+    * Action to proxy Google Categories
+    *
+    * @return null
+    */
+    public function categoriesAction()
+    {
+        $response = file_get_contents('https://www.google.com/basepages/producttype/taxonomy-with-ids.pt-BR.txt');
+        echo $response;
     }
 
 }

@@ -1,7 +1,7 @@
 <config>
     <modules>
         <Cammino_Googlemerchant>
-            <version>0.0.2</version>
+            <version>0.0.3</version>
         </Cammino_Googlemerchant>
     </modules>
     <global>
@@ -28,6 +28,11 @@
             <googlemerchant>
                 <class>Cammino_Googlemerchant_Block</class>
             </googlemerchant>
+            <adminhtml>
+                <rewrite>
+                    <catalog_category_tab_attributes>Cammino_Googlemerchant_Block_Autocomplete</catalog_category_tab_attributes>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <resources>
             <googlemerchant_setup>
