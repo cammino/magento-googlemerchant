@@ -32,7 +32,7 @@ new Ajax.Request(\'/googlemerchant/feed/categories\', {
     onSuccess: function(transport) {
         var response = transport.responseText;
         var items = response.split("\n");
-        new Autocompleter.Local(\'group_4googlemerchant_category\', \'group_4googlemerchant_category_autocomplete\', items, {});
+        new Autocompleter.Local(\'group_4googlemerchant_category\', \'group_4googlemerchant_category_autocomplete\', items, { choices: 1000 });
     },
     onFailure: function() {}
 });
