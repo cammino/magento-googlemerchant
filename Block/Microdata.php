@@ -48,6 +48,9 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 if ($ratingOb->getSum() && $ratingOb->getCount()) {
                     $ratingSum = $ratingOb->getSum() / 20;      // Each star is equivalent to 20
                     $ratingCount = $ratingOb->getCount() / 2;   // 2 reviews by person
+                    if ($ratingCount < 1) {
+                        $ratingCount = 1;
+                    }
                     $rating = ($ratingSum / $ratingCount) / 2;  // Average 2 Reviews
                     
                     $result[] = "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\">";
