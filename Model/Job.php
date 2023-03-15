@@ -19,9 +19,9 @@ class Cammino_Googlemerchant_Model_Job
                 file_put_contents($fileName, $xml);
                 Mage::getModel('core/config')->saveConfig('catalog/googlemerchant/xmllastcreated', $currentDateTimeString, 'default');
                 Mage::app()->getCacheInstance()->cleanType('config');
-                Mage::log('XML file created with success.', null, 'googlemerchant_job.xml');
+                Mage::log('XML file created with success.', null, 'googlemerchant_job.log');
             } catch (Exception $e) {
-                Mage::log('Error creating XML file: '. $e->getMessage(), null, 'googlemerchant_job.xml');
+                Mage::log('Error creating XML file: '. $e->getMessage(), null, 'googlemerchant_job.log');
             }
         }
     }
