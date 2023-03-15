@@ -78,6 +78,24 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </attributesize>
+                        <xmlmininterval translate="label">
+                            <label>Intervalo de minutos para geração do XML</label>
+                            <comment>Informar somente o número de minutos entre uma criação e outra. Ex de hora em hora: 60</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </xmlmininterval>
+                        <xmllastcreated translate="label">
+                            <label>Último xml criado em: </label>
+                            <comment>Data exata da criação do último XML</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </xmllastcreated>
 					</fields>
 				</googlemerchant>
 			</groups>

@@ -78,6 +78,18 @@
             </checkout_onepage_controller_success_action>
         </events>
     </global>
+    <crontab>
+        <jobs>
+            <googlemerchant_job>
+                <schedule>
+                    <cron_expr>*/1 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>googlemerchant/job::createxml</model>
+                </run>
+            </googlemerchant_job>
+        </jobs>
+    </crontab>
     <adminhtml>
         <layout>
             <updates>
