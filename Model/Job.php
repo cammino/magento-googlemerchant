@@ -7,11 +7,8 @@ class Cammino_Googlemerchant_Model_Job
         $currentDateTimeString = Mage::getModel('core/date')->date('Y-m-d H:i:s');
         $currentTimestamp = Mage::getModel('core/date')->timestamp(time());
         $lastCreatedAt = Mage::getStoreConfig('catalog/googlemerchant/xmllastcreated');
-        if (empty($lastCreatedAt)) {
-            Mage::getModel('core/date')->date('Y-m-d H:i:s');
-        }
         $lastTimestamp = Mage::getModel('core/date')->timestamp(strtotime($lastCreatedAt));
-        if (($currentTimestamp - $lastTimestamp) >= ($minuteInterval * 60)) {
+        if ((($currentTimestamp - $lastTimestamp) >= ($minuteInterval * 60)|| empty($lastCreatedAt))) {
             $fileName = Mage::getBaseDir() . DS . 'googlemerchant.xml';
             $feed = Mage::getModel('googlemerchant/feed');
             $xml = $feed->getXml();
