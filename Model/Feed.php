@@ -32,7 +32,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $products = $this->getProducts();
         $xml = $this->getXmlStart();
-
+        
         foreach ($products as $product) {
             $xml .= $this->getProductXml($product);
         }
@@ -533,7 +533,8 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             ->addAttributeToFilter('status', 1)
             ->addAttributeToFilter('visibility', array('neq' => '1'))
             ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
-            ->addAttributeToSort('created_at', 'desc');
+            ->addAttributeToSort('created_at', 'desc')
+            ->load();
 
         return $products;
     }
@@ -610,6 +611,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $product = Mage::getModel('catalog/product')->load($product->getId()); // load product
         $medias = $product->getMediaAttributes(); // all images
+        $xml = '';
 
         foreach ($medias as $index=>$media) {
                 $xml .= "<g:image_". $index . "><![CDATA[". (string) Mage::getModel('catalog/product_media_config')->getMediaUrl($product->{'get'.$index}()) . "]]></g:image_". $index . ">";
