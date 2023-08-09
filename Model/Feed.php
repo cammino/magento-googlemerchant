@@ -114,6 +114,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $xml .= $this->getAllImageProduct($product);
 
             $xml .= $this->getBrandNode($product);
+            $xml .= $this->getColorNode($product);
             $xml .= "<g:identifier_exists>FALSE</g:identifier_exists>\n";
             $xml .= "<recomendable>" . (((strval($product->getGooglemerchantRecomendable()) == "1") || (strval($product->getGooglemerchantRecomendable()) == "")) ? "true" : "false") . "</recomendable>\n";
 
@@ -480,6 +481,19 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
         if ($manufacturer != "") {
             return "<g:brand>". $manufacturer ."</g:brand>\n";
+        } else {
+            return "";
+        }
+    }
+
+    
+    public function getColorNode($product)
+    {
+        $color = strval($product->getColor());
+        $xml = "";
+
+        if ($color != "") {
+            return "<g:brand>". $color ."</g:brand>\n";
         } else {
             return "";
         }
