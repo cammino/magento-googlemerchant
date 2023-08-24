@@ -489,11 +489,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     
     public function getColorNode($product)
     {
-        $color = strval($product->getColor());
+        $productAttribute = $product->getResource()->getAttribute('color');
+        $color = $productAttribute->getSource()
+                                  ->getOptionText($product->getData('color'));
         $xml = "";
 
         if ($color != "") {
-            return "<g:brand>". $color ."</g:brand>\n";
+            return "<g:color>". $color ."</g:color>\n";
         } else {
             return "";
         }
