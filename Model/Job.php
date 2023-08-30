@@ -11,12 +11,15 @@ class Cammino_Googlemerchant_Model_Job
         if ((($currentTimestamp - $lastTimestamp) >= (($minuteInterval * 60) * 60) || empty($lastCreatedAt))) {
             $fileName = Mage::getBaseDir() . DS . 'googlemerchant.xml';
             $feed = Mage::getModel('googlemerchant/feed');
-            $xml = $feed->getXml();
             try {
-                file_put_contents($fileName, $xml);
+                $allStores = Mage::app()->getStores();
+                foreach($allStores as $store) {
+                    $xml = $feed->getXml($store->getId());
+                    file_put_contents(($store->getId() > 1) ? $fileName . '-' . $store->getName() : $fileName, $xml);
+                    Mage::log('XML file created with success (store: ' . $store->getId() . ' - ' . $store->getName() . ')' , null, 'googlemerchant_job.log');
+                }
                 Mage::getModel('core/config')->saveConfig('catalog/googlemerchant/xmllastcreated', $currentDateTimeString, 'default');
                 Mage::app()->getCacheInstance()->cleanType('config');
-                Mage::log('XML file created with success.', null, 'googlemerchant_job.log');
             } catch (Exception $e) {
                 Mage::log('Error creating XML file: '. $e->getMessage(), null, 'googlemerchant_job.log');
             }

@@ -28,9 +28,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return object
     */
-    public function getXml()
+    public function getXml($storeId = 0)
     {
-        $products = $this->getProducts();
+        $products = $this->getProducts($storeId);
         $xml = $this->getXmlStart();
         
         foreach ($products as $product) {
@@ -541,13 +541,14 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return object
     */
-    public function getProducts()
+    public function getProducts($storeId = 0)
     {
         $products = Mage::getModel('catalog/product')->getCollection();
 
         $products->addAttributeToSelect('*')
             ->addAttributeToFilter('status', 1)
             ->addAttributeToFilter('visibility', array('neq' => '1'))
+            ->addAttributeToFilter('website_ids', array('like' => '%' . $storeId . '%'))
             ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
             ->addAttributeToSort('created_at', 'desc')
             ->load();
