@@ -28,7 +28,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return object
     */
-    public function getXml($storeId = 0)
+    public function getXml($storeId = 1)
     {
         $products = $this->getProducts($storeId);
         $xml = $this->getXmlStart();
@@ -541,19 +541,22 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return object
     */
-    public function getProducts($storeId = 0)
+    public function getProducts($storeId = 1)
     {
-        $products = Mage::getModel('catalog/product')->getCollection();
-
-        $products->addAttributeToSelect('*')
-            ->addAttributeToFilter('status', 1)
-            ->addAttributeToFilter('visibility', array('neq' => '1'))
-            ->addAttributeToFilter('website_ids', array('like' => '%' . $storeId . '%'))
-            ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
-            ->addAttributeToSort('created_at', 'desc')
-            ->load();
-
-        return $products;
+        try {
+            $products = Mage::getModel('catalog/product')->getCollection();
+            $products->addAttributeToSelect('*')
+                ->addAttributeToFilter('status', 1)
+                ->addAttributeToFilter('visibility', array('neq' => '1'))
+                ->addWebsiteFilter($storeId)
+                ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
+                ->addAttributeToSort('created_at', 'desc')
+                ->load();
+            return $products;
+        } catch (Exception $e) {
+            Mage::log('Erro ao pegar coleção de propdutos: ', null, 'googlemerchant_job.log');
+            Mage::log($e->getMessage(), null, 'googlemerchant_job.log');
+        }
     }
 
     /**
