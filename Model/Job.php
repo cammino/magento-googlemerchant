@@ -15,6 +15,9 @@ class Cammino_Googlemerchant_Model_Job
                 $allStores = Mage::app()->getStores();
                 foreach($allStores as $store) {
                     if($store->getId() > 0) {
+                        Mage::app()->setCurrentStore($store->getId());
+                        Mage::app()->setUseSessionVar(false);
+                        Mage::app()->setUseSessionInUrl(false);
                         $xml = $feed->getXml($store->getId());
                         file_put_contents(($store->getId() > 1) ? Mage::getBaseDir() . DS . 'googlemerchant' . '_' . $store->getCode() . '.xml' : $fileName, $xml);
                         Mage::log('XML file created with success (store: ' . $store->getId() . ' - ' . $store->getName() . ')' , null, 'googlemerchant_job.log');
