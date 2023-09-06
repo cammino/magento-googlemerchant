@@ -255,7 +255,13 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     */
     public function getSimplePriceNode($product)
     {
-        $xml = "<g:price>". number_format($product->getPrice(), 2, '.', '') ."</g:price>\n";
+        
+        if (!empty(Mage::getStoreConfig('catalog/googlemerchant/googlenext'))) {
+            $p = number_format($product->getPrice(), 2, ',', '.');
+        } else {
+            $p = number_format($product->getPrice(), 2, '.', '');
+        }
+        $xml = "<g:price>". $p ."</g:price>\n";
 
         if ($this->getCatalogPromoPrice($product) < $product->getPrice()) {
             $xml .= "<g:sale_price>". number_format($this->getCatalogPromoPrice($product), 2, '.', '') ."</g:sale_price>\n";
@@ -300,7 +306,12 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $minimal = end($prices);
         }
 
-        return "<g:price>". number_format($minimal, 2, '.', '') ."</g:price>\n";
+        if (!empty(Mage::getStoreConfig('catalog/googlemerchant/googlenext'))) {
+            $p = number_format($minimal, 2, ',', '.');
+        } else {
+            $p = number_format($minimal, 2, '.', '');
+        }
+        return "<g:price>". $p ."</g:price>\n";
     }
 
     /**
@@ -331,7 +342,12 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $defaultPrice += ($_selectionPrice * $_selection->getSelectionQty());
         }
 
-        return "<g:price>". number_format($defaultPrice, 2, '.', '') ."</g:price>\n";
+        if (!empty(Mage::getStoreConfig('catalog/googlemerchant/googlenext'))) {
+            $p = number_format($defaultPrice, 2, ',', '.');
+        } else {
+            $p = number_format($defaultPrice, 2, '.', '');
+        }
+        return "<g:price>". $p ."</g:price>\n";
     }
 
     /**
