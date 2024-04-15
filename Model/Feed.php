@@ -559,6 +559,11 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     */
     public function getProducts($storeId = 1)
     {
+        $minStockQty = Mage::getStoreConfig('catalog/googlemerchant/min_stock_qty');
+        if (empty($minStockQty)) {
+            $minStockQty = 0;
+        }
+
         try {
             $products = Mage::getModel('catalog/product')->getCollection();
             $products->addAttributeToSelect('*')
@@ -567,6 +572,14 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
                 ->addWebsiteFilter($storeId)
                 ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
                 ->addAttributeToSort('created_at', 'desc')
+                ->joinField(
+                    'qty',
+                    'cataloginventory_stock_item',
+                    'qty',
+                    'product_id=entity_id',
+                    '{{table}}.stock_id=1',
+                    'left'
+                )->addAttributeToFilter('qty', array('gteq' => $minStockQty))
                 ->load();
             return $products;
         } catch (Exception $e) {
