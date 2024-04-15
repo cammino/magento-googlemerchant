@@ -106,6 +106,15 @@
                             <show_in_store>1</show_in_store>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                         </googlenext>
+                        <min_stock_qty translate="label">
+                            <label>Quantidade mínima de estoque para o feed XML</label>
+                            <comment>Quantidade mínima de estoque para que o produto seja adicionado ao feed de produtos. Ex: 2 - somente produtos com 2 ou mais unidades de estoque irão para o feed XML</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </min_stock_qty>
 					</fields>
 				</googlemerchant>
 			</groups>
