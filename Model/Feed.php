@@ -581,7 +581,32 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
                     'left'
                 )->addAttributeToFilter('qty', array('gteq' => $minStockQty))
                 ->load();
-            return $products;
+
+            $otherProducts = Mage::getModel('catalog/product')->getCollection();
+            $otherProducts->addAttributeToSelect('*')
+                ->addAttributeToFilter('status', 1)
+                ->addAttributeToFilter('visibility', array('neq' => '1'))
+                ->addWebsiteFilter($storeId)
+                ->addAttributeToFilter('type_id', array('in' => array('grouped', 'bundle', 'configurable')))
+                ->addAttributeToSort('created_at', 'desc')
+                ->joinField(
+                    'stock_status',
+                    'cataloginventory/stock_status',
+                    'stock_status',
+                    'product_id=entity_id',
+                    '{{table}}.stock_id=1',
+                    'inner'
+                )
+                ->addAttributeToFilter('stock_status', array('eq' => 1))
+                ->load();
+
+            $allProductsIds = array_merge($products->getAllIds(), $otherProducts->getAllIds());
+
+            $allProducts = Mage::getModel('catalog/product')->getCollection()
+                ->addAttributeToSelect('*')
+                ->addAttributeToFilter('entity_id', array('in' => $allProductsIds));
+
+            return $allProducts;
         } catch (Exception $e) {
             Mage::log('Erro ao pegar coleção de propdutos: ', null, 'googlemerchant_job.log');
             Mage::log($e->getMessage(), null, 'googlemerchant_job.log');
