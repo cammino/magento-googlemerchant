@@ -12,6 +12,7 @@
 class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 {
     private $_helper;
+    private $_storeId;
 
     /**
     * Function responsible for construct 'cammino_googlemerchant'
@@ -32,9 +33,10 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     {
         $products = $this->getProducts($storeId);
         $xml = $this->getXmlStart();
+        $this->_storeId = $storeId;
         
         foreach ($products as $product) {
-            $xml .= $this->getProductXml($product);
+            $xml .= $this->getProductXml($product, $storeId);
         }
 
         $xml .= $this->getXmlEnd();
@@ -78,7 +80,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     *
     * @return object
     */
-    public function getProductXml($product)
+    public function getProductXml($product, $storeId)
     {
         if($product->getGooglemerchantDisable() == "1") {
             return "";
@@ -96,7 +98,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         if (is_array($categories)) {
             $xml  = "<item>\n";
             $xml .= "<title><![CDATA[". $product->getName() ."]]></title>\n";
-            $xml .= "<link><![CDATA[". $product->getProductUrl() . $couponPrefix ."]]></link>\n";
+            $xml .= "<link><![CDATA[". $product->setStoreId($storeId)->getUrlInStore() . $couponPrefix ."]]></link>\n";
             $xml .= $this->getProductDescription($product);
             $xml .= "<g:id>". $product->getId() ."</g:id>\n";
             $xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
