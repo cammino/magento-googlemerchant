@@ -102,6 +102,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
             $xml .= $this->getProductDescription($product);
             $xml .= "<g:id>". $product->getId() ."</g:id>\n";
             $xml .= "<g:mpn>". $product->getSku() ."</g:mpn>\n";
+            $xml .= "<g:visibility>". $this->getProductVisibility($product) ."</g:visibility>\n";
 
             if (strval($product->getEan()) != "") {
                 $xml .= "<g:gtin>".$product->getEan()."</g:gtin>\n";
@@ -730,5 +731,20 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         }
 
         return $xml;
+    }
+
+    public function getProductVisibility($product)
+    {
+        $visibility = $product->getVisibility();
+
+        if ($visibility == 1) {
+            return 'Não Exibir Individualmente';
+        } else if ($visibility == 2) {
+            return 'Catálogo';
+        } else if ($visibility == 3) {
+            return 'Buscar';
+        } else if ($visibility == 4) {
+            return 'Catálogo, Busca';
+        }
     }
 }
