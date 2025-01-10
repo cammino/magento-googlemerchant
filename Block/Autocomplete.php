@@ -25,7 +25,7 @@ class Cammino_Googlemerchant_Block_Autocomplete extends Mage_Adminhtml_Block_Cat
     background: #f0f0f0;
 }
 </style>
-<div id="group_4googlemerchant_category_autocomplete"></div>
+<div id="group_4googlemerchant_category_autocomplete" style="display: none;"></div>
 <script type="text/javascript">
 new Ajax.Request(\'/googlemerchant/categories\', {
     method:\'get\',
