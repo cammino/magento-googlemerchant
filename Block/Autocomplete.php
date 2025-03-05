@@ -27,20 +27,30 @@ class Cammino_Googlemerchant_Block_Autocomplete extends Mage_Adminhtml_Block_Cat
 </style>
 <div id="group_4googlemerchant_category_autocomplete" style="display: none;"></div>
 <script type="text/javascript">
-new Ajax.Request(\'/googlemerchant/categories\', {
-    method:\'get\',
+var request = new Ajax.Request(\'/googlemerchant/categories\', {
+    method: \'get\',
     onSuccess: function(transport) {
+        clearTimeout(timeout);
         var response = transport.responseText;
-        var items = response.split("\n");
+        var items = response.split("\\n");
         new Autocompleter.Local(\'group_4googlemerchant_category\', \'group_4googlemerchant_category_autocomplete\', items, { choices: 1000 });
     },
-    onFailure: function() {}
+    onFailure: function() {
+        clearTimeout(timeout);
+        console.log("Request failed.");
+    }
 });
+
+// Set a timeout of 15 seconds
+var timeout = setTimeout(function() {
+    if (request.transport) {
+        request.transport.abort(); // Abort the request
+        console.log("Request timed out after 15 seconds.");
+    }
+}, 15000);
 </script>
             ';
         }
-        
     }
-
 }
 ?>
