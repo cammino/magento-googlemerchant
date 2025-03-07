@@ -41,11 +41,11 @@ var request = new Ajax.Request(\'/googlemerchant/categories\', {
     }
 });
 
-// Set a timeout of 15 seconds
+// Set a timeout of 5 seconds
 var timeout = setTimeout(function() {
     if (request.transport) {
         request.transport.abort(); // Abort the request
-        console.log("Request timed out after 15 seconds.");
+        console.log("Request timed out after 5 seconds.");
     }
 }, 5000);
 </script>
