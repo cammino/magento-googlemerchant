@@ -47,7 +47,7 @@ var timeout = setTimeout(function() {
         request.transport.abort(); // Abort the request
         console.log("Request timed out after 15 seconds.");
     }
-}, 15000);
+}, 5000);
 </script>
             ';
         }
