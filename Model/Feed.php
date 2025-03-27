@@ -36,7 +36,9 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         $this->_storeId = $storeId;
         
         foreach ($products as $product) {
-            $xml .= $this->getProductXml($product, $storeId);
+            if (empty($product->getRemoveFromXml())) {
+                $xml .= $this->getProductXml($product, $storeId);
+            }
         }
 
         $xml .= $this->getXmlEnd();
