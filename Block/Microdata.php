@@ -31,7 +31,7 @@ class Cammino_Googlemerchant_Block_Microdata extends Mage_Core_Block_Template
                 (Mage::registry('current_product') != null)) {
 
                 $product = Mage::registry('current_product');
-                $currency = trim(Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol());
+                $currency = trim(Mage::app()->getStore()->getCurrentCurrencyCode());
                 $productPrice = $this->getProductPrice($product);
                 $availability = $this->getProductAvailability($product);
                 $ratingOb = Mage::getModel('rating/rating')->getEntitySummary($product->getId());
