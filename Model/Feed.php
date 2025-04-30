@@ -125,6 +125,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
             $xml .= $this->getCategoriesNode($categories, $product);
             $xml .= $this->getCustomLabelNode($product);
+            $xml .= $this->getCustomAttributes($product);
             $xml .= $this->getSizeNode($product);
             $xml .= $this->getAdditionalNodes($product);
 
@@ -555,6 +556,25 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
         }
 
         return $customlabel;
+    }
+
+    /**
+    * Function responsible for get node for custom attributes
+    *
+    * @param object $product Product object
+    *
+    * @return string
+    */
+    public function getCustomAttributes($product)
+    {
+        $xml = '';
+        $attributes = explode(",", strval($product->getGooglemerchantCustomAttributes()));
+        if (!empty($attributes)) {
+            foreach($attributes as $attribute) {
+                $xml .= "<g:". $attribute .">" . $product->getData($attribute) . "</g:". $attribute .">\n";
+            }
+        }
+        return $xml;
     }
 
     /**
