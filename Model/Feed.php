@@ -568,7 +568,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
     public function getCustomAttributes($product)
     {
         $xml = '';
-        $attributes = explode(",", strval($product->getGooglemerchantCustomAttributes()));
+        $attributes = explode(",", strval($product->getGooglemerchantCustomAttr()));
         if (!empty($attributes)) {
             foreach($attributes as $attribute) {
                 $xml .= "<g:". $attribute .">" . $product->getData($attribute) . "</g:". $attribute .">\n";
