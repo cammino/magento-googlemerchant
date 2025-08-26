@@ -600,17 +600,18 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
                 ->addAttributeToFilter('status', 1)
                 ->addAttributeToFilter('visibility', array('neq' => '1'))
                 ->addWebsiteFilter($storeId)
-                ->addAttributeToFilter('type_id', array('in' => array('simple', 'grouped', 'bundle', 'configurable')))
+                ->addAttributeToFilter('type_id', array('in' => array('simple')))
                 ->addAttributeToSort('created_at', 'desc')
-                ->joinField(
-                    'qty',
-                    'cataloginventory_stock_item',
-                    'qty',
+                ->joinTable(
+                    'cataloginventory/stock_item',
                     'product_id=entity_id',
+                    array('qty' => 'qty'),
                     '{{table}}.stock_id=1',
                     'left'
-                )->addAttributeToFilter('qty', array('gteq' => $minStockQty))
-                ->load();
+                )
+                ->addAttributeToFilter('qty', array('gteq' => $minStockQty));
+
+            $products->getSelect()->group('e.entity_id');
 
             $otherProducts = Mage::getModel('catalog/product')->getCollection();
             $otherProducts->addAttributeToSelect('*')
@@ -619,18 +620,21 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
                 ->addWebsiteFilter($storeId)
                 ->addAttributeToFilter('type_id', array('in' => array('grouped', 'bundle', 'configurable')))
                 ->addAttributeToSort('created_at', 'desc')
-                ->joinField(
-                    'stock_status',
+                ->joinTable(
                     'cataloginventory/stock_status',
-                    'stock_status',
                     'product_id=entity_id',
+                    array('stock_status' => 'stock_status'),
                     '{{table}}.stock_id=1',
                     'inner'
                 )
-                ->addAttributeToFilter('stock_status', array('eq' => 1))
-                ->load();
+                ->addAttributeToFilter('stock_status', array('eq' => 1));
 
-            $allProductsIds = array_merge($products->getAllIds(), $otherProducts->getAllIds());
+            $otherProducts->getSelect()->group('e.entity_id');
+
+            $allProductsIds = array_unique(array_merge(
+                $products->getAllIds(),
+                $otherProducts->getAllIds()
+            ));
 
             $allProducts = Mage::getModel('catalog/product')->getCollection()
                 ->addAttributeToSelect('*')
@@ -638,7 +642,7 @@ class Cammino_Googlemerchant_Model_Feed extends Mage_Core_Model_Abstract
 
             return $allProducts;
         } catch (Exception $e) {
-            Mage::log('Erro ao pegar coleção de propdutos: ', null, 'googlemerchant_job.log');
+            Mage::log('Erro ao pegar coleção de produtos: ', null, 'googlemerchant_job.log');
             Mage::log($e->getMessage(), null, 'googlemerchant_job.log');
         }
     }
